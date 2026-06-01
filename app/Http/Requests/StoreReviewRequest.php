@@ -15,7 +15,7 @@ class StoreReviewRequest extends FormRequest
     {
         return [
             'rating'  => ['required', 'integer', 'between:1,5'],
-            'comment' => ['nullable', 'string', 'max:1000'],
+            'comment' => ['required', 'string', 'max:1000'],
         ];
     }
 
@@ -25,7 +25,8 @@ class StoreReviewRequest extends FormRequest
             'rating.required' => '評価は必須です。',
             'rating.integer'  => '評価は1〜5の整数で選択してください。',
             'rating.between'  => '評価は1〜5の範囲で選択してください。',
-            'comment.max'     => 'コメントは1000文字以内で入力してください。',
+            'comment.required' => 'コメントを入力してください。',
+            'comment.max'      => 'コメントは1000文字以内で入力してください。',
         ];
     }
 }

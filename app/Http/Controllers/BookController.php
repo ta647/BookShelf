@@ -40,7 +40,7 @@ class BookController extends Controller
 
         $book->genres()->sync($request->input('genres', []));
 
-        return redirect()->route('books.index')->with('success', '書籍を登録しました。');
+        return redirect()->route('books.show', $book)->with('success', '書籍を登録しました。');
     }
 
     public function show(Book $book)
@@ -74,7 +74,7 @@ class BookController extends Controller
 
         $book->genres()->sync($request->input('genres', []));
 
-        return redirect()->route('books.show', $book)->with('success', '書籍を更新しました。');
+        return redirect()->route('books.show', $book)->with('success', '書籍情報を更新しました。');
     }
 
     public function destroy(Book $book)
