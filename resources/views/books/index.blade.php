@@ -43,22 +43,6 @@
                                             <span class="bg-gray-200 text-gray-700 text-xs px-2 py-1 rounded">{{ $genre->name }}</span>
                                         @endforeach
                                     </div>
-                                    @if($book->reviews_avg_rating)
-                                        <div class="flex items-center">
-                                            <span class="text-yellow-500">
-                                                @for($i = 1; $i <= 5; $i++)
-                                                    @if($i <= round($book->reviews_avg_rating))
-                                                        ★
-                                                    @else
-                                                        ☆
-                                                    @endif
-                                                @endfor
-                                            </span>
-                                            <span class="text-sm text-gray-500 ml-2">
-                                                ({{ number_format($book->reviews_avg_rating, 1) }})
-                                            </span>
-                                        </div>
-                                    @endif
                                 </a>
                             @endforeach
                         </div>
