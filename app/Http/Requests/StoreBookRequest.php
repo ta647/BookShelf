@@ -36,8 +36,8 @@ class StoreBookRequest extends FormRequest
             'isbn.unique'             => 'このISBNはすでに登録されています。',
             'published_date.date'     => '出版日は有効な日付で入力してください。',
             'image_url.url'           => '画像URLは正しいURL形式で入力してください。',
-            'genres.required'         => 'ジャンルを1つ以上選択してください。',
-            'genres.min'              => 'ジャンルを1つ以上選択してください。',
+            'genres.required'         => 'ジャンルは1つ以上選択してください。',
+            'genres.min'              => 'ジャンルは1つ以上選択してください。',
             'genres.*.exists'         => '選択されたジャンルが存在しません。',
         ];
     }
