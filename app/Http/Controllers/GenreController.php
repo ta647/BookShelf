@@ -24,7 +24,7 @@ class GenreController extends Controller
     {
         Genre::create(['name' => $request->name]);
 
-        return redirect()->route('genres.index')->with('success', 'ジャンルを登録しました。');
+        return redirect()->route('genres.index')->with('success', 'ジャンルを作成しました。');
     }
 
     public function show(Genre $genre)
