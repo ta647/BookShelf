@@ -12,8 +12,7 @@
                     @if($books->count() > 0)
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                             @foreach($books as $book)
-                                <div class="relative border rounded-lg p-4 shadow hover:shadow-lg transition cursor-pointer">
-                                    <a href="{{ route('books.show', $book) }}" class="absolute inset-0"></a>
+                                <div class="border rounded-lg p-4 hover:shadow-lg transition-shadow cursor-pointer">
                                     @if($book->image_url)
                                         <img src="{{ $book->image_url }}" alt="{{ $book->title }}" class="w-full h-48 object-cover rounded mb-4">
                                     @else
@@ -21,10 +20,14 @@
                                             <span class="text-gray-400">No Image</span>
                                         </div>
                                     @endif
-                                    <h3 class="font-bold text-lg mb-2 text-blue-600">{{ $book->title }}</h3>
+                                    <h3 class="font-bold text-lg mb-2">
+                                        <a href="{{ route('books.show', $book) }}" class="text-blue-600 hover:underline">
+                                            {{ $book->title }}
+                                        </a>
+                                    </h3>
                                     <p class="text-gray-600 mb-2">{{ $book->author }}</p>
-                                    <div class="relative z-10 flex items-center justify-between">
-                                        <span class="text-sm text-gray-500">ISBN: {{ $book->isbn }}</span>
+                                    <div class="flex items-center justify-between">
+                                        <span class="text-sm text-gray-500">ISBN: {{ $book->isbn ?? '未登録' }}</span>
                                         <form action="{{ route('favorites.toggle', $book) }}" method="POST" novalidate>
                                             @csrf
                                             <button type="submit" class="text-red-500 hover:text-red-700">
