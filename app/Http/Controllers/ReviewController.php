@@ -7,10 +7,15 @@ use App\Http\Requests\UpdateReviewRequest;
 use App\Models\Book;
 use App\Models\Review;
 use App\Models\ReviewLike;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\View\View;
 
 class ReviewController extends Controller
 {
-    public function store(StoreReviewRequest $request, Book $book)
+    /**
+     * レビューを投稿する
+     */
+    public function store(StoreReviewRequest $request, Book $book): RedirectResponse
     {
         $book->reviews()->create([
             'user_id' => auth()->id(),
@@ -21,14 +26,20 @@ class ReviewController extends Controller
         return redirect()->route('books.show', $book)->with('success', 'レビューを投稿しました。');
     }
 
-    public function edit(Review $review)
+    /**
+     * レビュー編集フォームを表示する
+     */
+    public function edit(Review $review): View
     {
         $this->authorize('update', $review);
 
         return view('reviews.edit', compact('review'));
     }
 
-    public function update(UpdateReviewRequest $request, Review $review)
+    /**
+     * レビューを更新する
+     */
+    public function update(UpdateReviewRequest $request, Review $review): RedirectResponse
     {
         $this->authorize('update', $review);
 
@@ -40,7 +51,10 @@ class ReviewController extends Controller
         return redirect()->route('books.show', $review->book)->with('success', 'レビューを更新しました。');
     }
 
-    public function destroy(Review $review)
+    /**
+     * レビューを削除する
+     */
+    public function destroy(Review $review): RedirectResponse
     {
         $this->authorize('delete', $review);
 
@@ -51,7 +65,10 @@ class ReviewController extends Controller
         return redirect()->route('books.show', $book)->with('success', 'レビューを削除しました。');
     }
 
-    public function like(Review $review)
+    /**
+     * レビューへのいいねを追加/解除する
+     */
+    public function like(Review $review): RedirectResponse
     {
         $userId = auth()->id();
         $existing = ReviewLike::where('user_id', $userId)->where('review_id', $review->id)->first();

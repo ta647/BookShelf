@@ -11,7 +11,7 @@ class BookSeeder extends Seeder
 {
     public function run(): void
     {
-        $user = User::first();
+        $users = User::all();
 
         $books = [
             [
@@ -121,7 +121,7 @@ class BookSeeder extends Seeder
 
             $book = Book::firstOrCreate(
                 ['isbn' => $data['isbn']],
-                array_merge($data, ['user_id' => $user->id])
+                array_merge($data, ['user_id' => $users->random()->id])
             );
 
             $genreIds = Genre::whereIn('name', $genreNames)->pluck('id');
