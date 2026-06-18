@@ -54,9 +54,9 @@
     <script>
         document.getElementById('fetch-btn').addEventListener('click', async function() {
             const isbn = document.getElementById('isbn-search').value.trim();
-            const errorEl = document.getElementById('fetch-error');
+            const errorEl   = document.getElementById('fetch-error');
             const successEl = document.getElementById('fetch-success');
-            const labelEl = document.getElementById('fetch-btn-label');
+            const labelEl   = document.getElementById('fetch-btn-label');
 
             errorEl.classList.add('hidden');
             successEl.classList.add('hidden');
@@ -99,7 +99,7 @@
                     successEl.classList.remove('hidden');
                 }
             } catch (e) {
-                errorEl.textContent = '通信エラーが発生しました。';
+                errorEl.textContent = 'API通信エラーが発生しました。';
                 errorEl.classList.remove('hidden');
             } finally {
                 this.disabled = false;
