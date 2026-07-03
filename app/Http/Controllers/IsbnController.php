@@ -13,7 +13,7 @@ class IsbnController extends Controller
     public function search(string $isbn): JsonResponse
     {
         if (strlen($isbn) !== 13) {
-            return response()->json(['error' => 'ISBNは13桁で入力してください。'], 400);
+            return response()->json(['error' => 'ISBNは13桁の数字で入力してください。'], 422);
         }
 
         $response = Http::get('https://www.googleapis.com/books/v1/volumes', [
