@@ -71,7 +71,7 @@ class IsbnSearchTest extends TestCase
             ->assertJsonFragment(['error' => '書籍が見つかりませんでした。']);
     }
 
-    public function test_Google_Books_APIがエラーを返した場合は404になる(): void
+    public function test_Google_Books_APIがエラーを返した場合は500になる(): void
     {
         Http::fake([
             'https://www.googleapis.com/books/v1/volumes*' => Http::response([], 500),
@@ -79,6 +79,6 @@ class IsbnSearchTest extends TestCase
 
         $response = $this->actingAs($this->user)->getJson('/books/isbn/9784297127466');
 
-        $response->assertStatus(404);
+        $response->assertStatus(500);
     }
 }

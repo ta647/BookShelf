@@ -112,4 +112,60 @@ class BookSearchTest extends TestCase
 
         $response->assertOk();
     }
+
+    public function test_未ログインユーザーも書籍一覧にアクセスできる(): void
+    {
+        $response = $this->get(route('books.index'));
+
+        $response->assertOk();
+        $response->assertViewIs('books.index');
+    }
+
+    public function test_書籍タイトルを押すと書籍詳細画面に遷移する(): void
+    {
+        $book = Book::factory()->create();
+
+        $response = $this->actingAs($this->user)->get(route('books.index'));
+
+        $response->assertSee(route('books.show', $book), false);
+    }
+
+    public function test_ログイン済みユーザーが書籍を登録ボタンを押すと書籍登録画面に遷移する(): void
+    {
+        $response = $this->actingAs($this->user)->get(route('books.index'));
+
+        $response->assertSee(route('books.create'), false);
+    }
+
+    public function test_評価順でソートできる(): void
+    {
+        $reviewer = User::factory()->create();
+        $highBook = Book::factory()->create(['title' => '高評価本']);
+        $lowBook  = Book::factory()->create(['title' => '低評価本']);
+
+        \App\Models\Review::factory()->create([
+            'book_id' => $highBook->id,
+            'user_id' => $reviewer->id,
+            'rating'  => 5,
+        ]);
+        \App\Models\Review::factory()->create([
+            'book_id' => $lowBook->id,
+            'user_id' => $reviewer->id,
+            'rating'  => 1,
+        ]);
+
+        $response = $this->actingAs($this->user)
+            ->get(route('books.index', ['sort' => 'rating']));
+
+        $response->assertOk();
+        $content = $response->getContent();
+        $this->assertLessThan(strpos($content, '低評価本'), strpos($content, '高評価本'));
+    }
+
+    public function test_未ログインユーザーが書籍登録画面にアクセスするとログイン画面にリダイレクトされる(): void
+    {
+        $response = $this->get(route('books.create'));
+
+        $response->assertRedirect(route('login'));
+    }
 }
