@@ -19,18 +19,18 @@ class IsbnSearchTest extends TestCase
         $this->user = User::factory()->create();
     }
 
-    public function test_有効なISBNで書籍情報を取得できる(): void
+    public function test_有効な_isb_nで書籍情報を取得できる(): void
     {
         Http::fake([
             'https://www.googleapis.com/books/v1/volumes*' => Http::response([
                 'totalItems' => 1,
                 'items' => [[
                     'volumeInfo' => [
-                        'title'         => 'Laravel実践入門',
-                        'authors'       => ['山田太郎'],
+                        'title' => 'Laravel実践入門',
+                        'authors' => ['山田太郎'],
                         'publishedDate' => '2023-01-01',
-                        'description'   => 'Laravelの解説書',
-                        'imageLinks'    => ['thumbnail' => 'https://example.com/cover.jpg'],
+                        'description' => 'Laravelの解説書',
+                        'imageLinks' => ['thumbnail' => 'https://example.com/cover.jpg'],
                     ],
                 ]],
             ]),
@@ -40,15 +40,15 @@ class IsbnSearchTest extends TestCase
 
         $response->assertOk()
             ->assertJson([
-                'title'          => 'Laravel実践入門',
-                'author'         => '山田太郎',
+                'title' => 'Laravel実践入門',
+                'author' => '山田太郎',
                 'published_date' => '2023-01-01',
-                'description'    => 'Laravelの解説書',
-                'image_url'      => 'https://example.com/cover.jpg',
+                'description' => 'Laravelの解説書',
+                'image_url' => 'https://example.com/cover.jpg',
             ]);
     }
 
-    public function test_13桁でないISBNはバリデーションエラーになる(): void
+    public function test_13桁でない_isb_nはバリデーションエラーになる(): void
     {
         $response = $this->actingAs($this->user)->getJson('/books/isbn/123');
 
@@ -56,12 +56,12 @@ class IsbnSearchTest extends TestCase
             ->assertJsonFragment(['error' => 'ISBNは13桁の数字で入力してください。']);
     }
 
-    public function test_存在しないISBNは404になる(): void
+    public function test_存在しない_isb_nは404になる(): void
     {
         Http::fake([
             'https://www.googleapis.com/books/v1/volumes*' => Http::response([
                 'totalItems' => 0,
-                'items'      => [],
+                'items' => [],
             ]),
         ]);
 
@@ -71,7 +71,7 @@ class IsbnSearchTest extends TestCase
             ->assertJsonFragment(['error' => '書籍が見つかりませんでした。']);
     }
 
-    public function test_Google_Books_APIがエラーを返した場合は500になる(): void
+    public function test_google_books_ap_iがエラーを返した場合は500になる(): void
     {
         Http::fake([
             'https://www.googleapis.com/books/v1/volumes*' => Http::response([], 500),

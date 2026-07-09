@@ -4,21 +4,22 @@ namespace Database\Factories;
 
 use App\Enums\ReadingPlanStatus;
 use App\Models\Book;
+use App\Models\ReadingPlan;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\ReadingPlan>
+ * @extends Factory<ReadingPlan>
  */
 class ReadingPlanFactory extends Factory
 {
     public function definition(): array
     {
         return [
-            'user_id'      => User::factory(),
-            'book_id'      => Book::factory(),
-            'due_date'     => now()->addDays(7),
-            'status'       => ReadingPlanStatus::Reading,
+            'user_id' => User::factory(),
+            'book_id' => Book::factory(),
+            'due_date' => now()->addDays(7),
+            'status' => ReadingPlanStatus::Reading,
             'completed_at' => null,
         ];
     }
@@ -36,7 +37,7 @@ class ReadingPlanFactory extends Factory
     public function expired(): static
     {
         return $this->state([
-            'status'   => ReadingPlanStatus::Expired,
+            'status' => ReadingPlanStatus::Expired,
             'due_date' => now()->subDays(3),
         ]);
     }
@@ -44,7 +45,7 @@ class ReadingPlanFactory extends Factory
     public function overdue(): static
     {
         return $this->state([
-            'status'   => ReadingPlanStatus::Reading,
+            'status' => ReadingPlanStatus::Reading,
             'due_date' => now()->subDays(1),
         ]);
     }

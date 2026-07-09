@@ -11,7 +11,7 @@ use Illuminate\Foundation\Support\Providers\AuthServiceProvider as ServiceProvid
 class AuthServiceProvider extends ServiceProvider
 {
     protected $policies = [
-        Book::class   => BookPolicy::class,
+        Book::class => BookPolicy::class,
         Review::class => ReviewPolicy::class,
     ];
 

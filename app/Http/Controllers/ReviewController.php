@@ -19,7 +19,7 @@ class ReviewController extends Controller
     {
         $book->reviews()->create([
             'user_id' => auth()->id(),
-            'rating'  => $request->rating,
+            'rating' => $request->rating,
             'comment' => $request->comment,
         ]);
 
@@ -44,7 +44,7 @@ class ReviewController extends Controller
         $this->authorize('update', $review);
 
         $review->update([
-            'rating'  => $request->rating,
+            'rating' => $request->rating,
             'comment' => $request->comment,
         ]);
 

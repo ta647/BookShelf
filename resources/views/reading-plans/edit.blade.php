@@ -10,20 +10,20 @@
             <div class="bg-white overflow-hidden shadow-sm sm:rounded-lg">
                 <div class="p-6 text-gray-900">
                     <div class="mb-4">
-                        <p class="text-sm text-gray-700">対象書籍: <strong>{{ $readingPlan->book->title }}</strong></p>
+                        <p class="text-sm text-gray-700">対象書籍: <strong>{{ $plan->book->title }}</strong></p>
                         <p class="text-sm text-gray-700">現在の状態:
-                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $readingPlan->status->badgeClass() }}">
-                                {{ $readingPlan->status->label() }}
+                            <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium {{ $plan->status->badgeClass() }}">
+                                {{ $plan->status->label() }}
                             </span>
                         </p>
                     </div>
 
-                    <form action="{{ route('reading-plans.update', $readingPlan) }}" method="POST" novalidate>
+                    <form action="{{ route('reading-plans.update', $plan) }}" method="POST" novalidate>
                         @csrf
                         @method('PUT')
                         <div class="mb-4">
                             <label for="target_date" class="block text-sm font-medium text-gray-700">期日 <span class="text-red-500">*</span></label>
-                            <input type="date" name="target_date" id="target_date" value="{{ old('target_date', $readingPlan->target_date->format('Y-m-d')) }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
+                            <input type="date" name="target_date" id="target_date" value="{{ old('target_date', $plan->due_date->format('Y-m-d')) }}" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500">
                             @error('target_date')
                                 <p class="mt-1 text-sm text-red-600">{{ $message }}</p>
                             @enderror

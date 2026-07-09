@@ -13,12 +13,13 @@ class BookCreateTest extends TestCase
     use RefreshDatabase;
 
     private User $user;
+
     private Genre $genre;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->user  = User::factory()->create();
+        $this->user = User::factory()->create();
         $this->genre = Genre::factory()->create();
     }
 
@@ -34,7 +35,7 @@ class BookCreateTest extends TestCase
     public function test_必須項目を全て入力すると書籍が登録され詳細ページにリダイレクトされる(): void
     {
         $response = $this->actingAs($this->user)->post(route('books.store'), [
-            'title'  => 'テスト書籍',
+            'title' => 'テスト書籍',
             'author' => 'テスト著者',
             'genres' => [$this->genre->id],
         ]);
@@ -44,12 +45,12 @@ class BookCreateTest extends TestCase
         $this->assertDatabaseHas('books', ['title' => 'テスト書籍', 'author' => 'テスト著者']);
     }
 
-    public function test_13桁のISBNを入力すると書籍が登録される(): void
+    public function test_13桁の_isb_nを入力すると書籍が登録される(): void
     {
         $this->actingAs($this->user)->post(route('books.store'), [
-            'title'  => 'テスト書籍',
+            'title' => 'テスト書籍',
             'author' => 'テスト著者',
-            'isbn'   => '9784111111111',
+            'isbn' => '9784111111111',
             'genres' => [$this->genre->id],
         ]);
 
@@ -60,7 +61,7 @@ class BookCreateTest extends TestCase
     public function test_タイトルを空にして登録するとバリデーションエラーになる(): void
     {
         $response = $this->actingAs($this->user)->post(route('books.store'), [
-            'title'  => '',
+            'title' => '',
             'author' => 'テスト著者',
             'genres' => [$this->genre->id],
         ]);
@@ -71,7 +72,7 @@ class BookCreateTest extends TestCase
     public function test_著者を空にして登録するとバリデーションエラーになる(): void
     {
         $response = $this->actingAs($this->user)->post(route('books.store'), [
-            'title'  => 'テスト書籍',
+            'title' => 'テスト書籍',
             'author' => '',
             'genres' => [$this->genre->id],
         ]);
@@ -82,7 +83,7 @@ class BookCreateTest extends TestCase
     public function test_ジャンルを選択せずに登録するとバリデーションエラーになる(): void
     {
         $response = $this->actingAs($this->user)->post(route('books.store'), [
-            'title'  => 'テスト書籍',
+            'title' => 'テスト書籍',
             'author' => 'テスト著者',
             'genres' => [],
         ]);
@@ -90,12 +91,12 @@ class BookCreateTest extends TestCase
         $response->assertSessionHasErrors(['genres']);
     }
 
-    public function test_13桁以外のISBNを入力するとバリデーションエラーになる(): void
+    public function test_13桁以外の_isb_nを入力するとバリデーションエラーになる(): void
     {
         $response = $this->actingAs($this->user)->post(route('books.store'), [
-            'title'  => 'テスト書籍',
+            'title' => 'テスト書籍',
             'author' => 'テスト著者',
-            'isbn'   => '12345',
+            'isbn' => '12345',
             'genres' => [$this->genre->id],
         ]);
 
@@ -105,7 +106,7 @@ class BookCreateTest extends TestCase
     public function test_255文字を超えるタイトルを入力するとバリデーションエラーになる(): void
     {
         $response = $this->actingAs($this->user)->post(route('books.store'), [
-            'title'  => str_repeat('あ', 256),
+            'title' => str_repeat('あ', 256),
             'author' => 'テスト著者',
             'genres' => [$this->genre->id],
         ]);

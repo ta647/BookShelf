@@ -13,17 +13,18 @@ class ReviewEditTest extends TestCase
     use RefreshDatabase;
 
     private User $user;
+
     private Review $review;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->user   = User::factory()->create();
-        $book         = Book::factory()->create();
+        $this->user = User::factory()->create();
+        $book = Book::factory()->create();
         $this->review = Review::factory()->create([
             'user_id' => $this->user->id,
             'book_id' => $book->id,
-            'rating'  => 3,
+            'rating' => 3,
             'comment' => '元のコメント',
         ]);
     }
@@ -41,13 +42,13 @@ class ReviewEditTest extends TestCase
     public function test_作成者本人がレビュー内容を編集して更新できる(): void
     {
         $this->actingAs($this->user)->put(route('reviews.update', $this->review), [
-            'rating'  => 5,
+            'rating' => 5,
             'comment' => '更新後のコメント',
         ]);
 
         $this->assertDatabaseHas('reviews', [
-            'id'      => $this->review->id,
-            'rating'  => 5,
+            'id' => $this->review->id,
+            'rating' => 5,
             'comment' => '更新後のコメント',
         ]);
     }
@@ -56,7 +57,7 @@ class ReviewEditTest extends TestCase
     public function test_評価を未入力で更新するとバリデーションエラーになる(): void
     {
         $response = $this->actingAs($this->user)->put(route('reviews.update', $this->review), [
-            'rating'  => '',
+            'rating' => '',
             'comment' => 'コメント',
         ]);
 
