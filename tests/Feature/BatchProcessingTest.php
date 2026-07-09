@@ -6,6 +6,7 @@ use App\Enums\ReadingPlanStatus;
 use App\Models\Book;
 use App\Models\ReadingPlan;
 use App\Models\User;
+use App\Notifications\ReadingPlanReminder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Notification;
@@ -22,17 +23,17 @@ class BatchProcessingTest extends TestCase
 
         // 期日が昨日の進行中計画
         $overdueplan = ReadingPlan::factory()->create([
-            'user_id'  => $user->id,
-            'book_id'  => $book->id,
-            'status'   => ReadingPlanStatus::Reading,
+            'user_id' => $user->id,
+            'book_id' => $book->id,
+            'status' => ReadingPlanStatus::Reading,
             'due_date' => Carbon::yesterday(),
         ]);
 
         // 期日が今日の進行中計画（まだ期限切れにしてはいけない）
         $todayPlan = ReadingPlan::factory()->create([
-            'user_id'  => $user->id,
-            'book_id'  => Book::factory()->create()->id,
-            'status'   => ReadingPlanStatus::Reading,
+            'user_id' => $user->id,
+            'book_id' => Book::factory()->create()->id,
+            'status' => ReadingPlanStatus::Reading,
             'due_date' => Carbon::today(),
         ]);
 
@@ -48,10 +49,10 @@ class BatchProcessingTest extends TestCase
         $book = Book::factory()->create();
 
         $completedPlan = ReadingPlan::factory()->create([
-            'user_id'      => $user->id,
-            'book_id'      => $book->id,
-            'status'       => ReadingPlanStatus::Completed,
-            'due_date'     => Carbon::yesterday(),
+            'user_id' => $user->id,
+            'book_id' => $book->id,
+            'status' => ReadingPlanStatus::Completed,
+            'due_date' => Carbon::yesterday(),
             'completed_at' => Carbon::yesterday(),
         ]);
 
@@ -68,9 +69,9 @@ class BatchProcessingTest extends TestCase
         $book = Book::factory()->create();
 
         $plan = ReadingPlan::factory()->create([
-            'user_id'  => $user->id,
-            'book_id'  => $book->id,
-            'status'   => ReadingPlanStatus::Reading,
+            'user_id' => $user->id,
+            'book_id' => $book->id,
+            'status' => ReadingPlanStatus::Reading,
             'due_date' => Carbon::tomorrow(),
         ]);
 
@@ -78,7 +79,7 @@ class BatchProcessingTest extends TestCase
 
         Notification::assertSentTo(
             $user,
-            \App\Notifications\ReadingPlanReminder::class
+            ReadingPlanReminder::class
         );
     }
 
@@ -91,9 +92,9 @@ class BatchProcessingTest extends TestCase
 
         // 期日が3日後
         ReadingPlan::factory()->create([
-            'user_id'  => $user->id,
-            'book_id'  => $book->id,
-            'status'   => ReadingPlanStatus::Reading,
+            'user_id' => $user->id,
+            'book_id' => $book->id,
+            'status' => ReadingPlanStatus::Reading,
             'due_date' => Carbon::today()->addDays(3),
         ]);
 
@@ -110,10 +111,10 @@ class BatchProcessingTest extends TestCase
         $book = Book::factory()->create();
 
         ReadingPlan::factory()->create([
-            'user_id'      => $user->id,
-            'book_id'      => $book->id,
-            'status'       => ReadingPlanStatus::Completed,
-            'due_date'     => Carbon::tomorrow(),
+            'user_id' => $user->id,
+            'book_id' => $book->id,
+            'status' => ReadingPlanStatus::Completed,
+            'due_date' => Carbon::tomorrow(),
             'completed_at' => Carbon::today(),
         ]);
 

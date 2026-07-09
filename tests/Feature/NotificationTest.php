@@ -5,6 +5,7 @@ namespace Tests\Feature;
 use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Notifications\DatabaseNotification;
+use Illuminate\Support\Str;
 use Tests\TestCase;
 
 class NotificationTest extends TestCase
@@ -27,12 +28,12 @@ class NotificationTest extends TestCase
 
         // DBに通知を直接挿入
         $notification = DatabaseNotification::create([
-            'id'              => \Illuminate\Support\Str::uuid(),
-            'type'            => 'App\Notifications\ReadingPlanReminder',
+            'id' => Str::uuid(),
+            'type' => 'App\Notifications\ReadingPlanReminder',
             'notifiable_type' => User::class,
-            'notifiable_id'   => $user->id,
-            'data'            => json_encode(['message' => 'テスト通知']),
-            'read_at'         => null,
+            'notifiable_id' => $user->id,
+            'data' => json_encode(['message' => 'テスト通知']),
+            'read_at' => null,
         ]);
 
         $response = $this->actingAs($user)
@@ -44,16 +45,16 @@ class NotificationTest extends TestCase
 
     public function test_他人の通知は既読にできない(): void
     {
-        $user      = User::factory()->create();
+        $user = User::factory()->create();
         $otherUser = User::factory()->create();
 
         $notification = DatabaseNotification::create([
-            'id'              => \Illuminate\Support\Str::uuid(),
-            'type'            => 'App\Notifications\ReadingPlanReminder',
+            'id' => Str::uuid(),
+            'type' => 'App\Notifications\ReadingPlanReminder',
             'notifiable_type' => User::class,
-            'notifiable_id'   => $otherUser->id,
-            'data'            => json_encode(['message' => 'テスト通知']),
-            'read_at'         => null,
+            'notifiable_id' => $otherUser->id,
+            'data' => json_encode(['message' => 'テスト通知']),
+            'read_at' => null,
         ]);
 
         $response = $this->actingAs($user)

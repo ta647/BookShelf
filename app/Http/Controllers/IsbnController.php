@@ -17,7 +17,7 @@ class IsbnController extends Controller
         }
 
         $response = Http::get('https://www.googleapis.com/books/v1/volumes', [
-            'q'   => "isbn:{$isbn}",
+            'q' => "isbn:{$isbn}",
             'key' => config('services.google.books_api_key'),
         ]);
 
@@ -25,7 +25,7 @@ class IsbnController extends Controller
             return response()->json(['error' => 'Google Books API のクォータを超過しました。.env に GOOGLE_BOOKS_API_KEY を設定してください。'], 429);
         }
 
-        if (!$response->successful()) {
+        if (! $response->successful()) {
             return response()->json(['error' => 'API通信エラーが発生しました。'], 500);
         }
 
@@ -33,15 +33,15 @@ class IsbnController extends Controller
             return response()->json(['error' => '書籍が見つかりませんでした。'], 404);
         }
 
-        $item       = $response->json('items.0.volumeInfo');
+        $item = $response->json('items.0.volumeInfo');
         $imageLinks = $item['imageLinks'] ?? [];
 
         return response()->json([
-            'title'          => $item['title'] ?? '',
-            'author'         => implode(', ', $item['authors'] ?? []),
+            'title' => $item['title'] ?? '',
+            'author' => implode(', ', $item['authors'] ?? []),
             'published_date' => $item['publishedDate'] ?? '',
-            'description'    => $item['description'] ?? '',
-            'image_url'      => $imageLinks['thumbnail'] ?? $imageLinks['smallThumbnail'] ?? '',
+            'description' => $item['description'] ?? '',
+            'image_url' => $imageLinks['thumbnail'] ?? $imageLinks['smallThumbnail'] ?? '',
         ]);
     }
 }

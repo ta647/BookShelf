@@ -33,12 +33,12 @@ class RankingTest extends TestCase
 
     public function test_書籍タイトルを押すと書籍詳細画面に遷移する(): void
     {
-        $user   = User::factory()->create();
-        $book   = Book::factory()->create(['title' => 'ランキング書籍']);
+        $user = User::factory()->create();
+        $book = Book::factory()->create(['title' => 'ランキング書籍']);
         Review::factory()->create([
             'book_id' => $book->id,
             'user_id' => $user->id,
-            'rating'  => 5,
+            'rating' => 5,
         ]);
 
         $response = $this->actingAs($user)->get(route('ranking.index'));
@@ -48,23 +48,23 @@ class RankingTest extends TestCase
 
     public function test_ランキング画面にレビュー平均評価の書籍が降順で表示される(): void
     {
-        $user    = User::factory()->create();
+        $user = User::factory()->create();
         $topBook = Book::factory()->create(['title' => '高評価書籍']);
         $lowBook = Book::factory()->create(['title' => '低評価書籍']);
 
         Review::factory()->create([
             'book_id' => $topBook->id,
             'user_id' => $user->id,
-            'rating'  => 5,
+            'rating' => 5,
         ]);
         Review::factory()->create([
             'book_id' => $lowBook->id,
             'user_id' => User::factory()->create()->id,
-            'rating'  => 1,
+            'rating' => 1,
         ]);
 
         $response = $this->get(route('ranking.index'));
-        $content  = $response->getContent();
+        $content = $response->getContent();
 
         $this->assertLessThan(
             strpos($content, '低評価書籍'),

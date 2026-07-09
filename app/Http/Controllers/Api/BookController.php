@@ -11,6 +11,7 @@ use App\Http\Resources\BookResource;
 use App\Models\Book;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Resources\Json\AnonymousResourceCollection;
+use Illuminate\Http\Response;
 
 class BookController extends Controller
 {
@@ -25,8 +26,8 @@ class BookController extends Controller
 
         if ($request->keyword) {
             $query->where(function ($q) use ($request) {
-                $q->where('title', 'like', '%' . $request->keyword . '%')
-                  ->orWhere('author', 'like', '%' . $request->keyword . '%');
+                $q->where('title', 'like', '%'.$request->keyword.'%')
+                    ->orWhere('author', 'like', '%'.$request->keyword.'%');
             });
         }
 
@@ -55,13 +56,13 @@ class BookController extends Controller
     public function store(StoreBookRequest $request): JsonResponse
     {
         $book = Book::create([
-            'user_id'        => auth()->id(),
-            'title'          => $request->title,
-            'author'         => $request->author,
-            'isbn'           => $request->isbn ?: null,
+            'user_id' => auth()->id(),
+            'title' => $request->title,
+            'author' => $request->author,
+            'isbn' => $request->isbn ?: null,
             'published_date' => $request->published_date ?: null,
-            'description'    => $request->description,
-            'image_url'      => $request->image_url,
+            'description' => $request->description,
+            'image_url' => $request->image_url,
         ]);
 
         $book->genres()->sync($request->input('genres', []));
@@ -77,12 +78,12 @@ class BookController extends Controller
         $this->authorize('update', $book);
 
         $book->update([
-            'title'          => $request->title,
-            'author'         => $request->author,
-            'isbn'           => $request->isbn ?: null,
+            'title' => $request->title,
+            'author' => $request->author,
+            'isbn' => $request->isbn ?: null,
             'published_date' => $request->published_date ?: null,
-            'description'    => $request->description,
-            'image_url'      => $request->image_url,
+            'description' => $request->description,
+            'image_url' => $request->image_url,
         ]);
 
         $book->genres()->sync($request->input('genres', []));
@@ -93,7 +94,7 @@ class BookController extends Controller
     /**
      * 書籍を削除する（Sanctum認証 + 所有者のみ）
      */
-    public function destroy(Book $book): \Illuminate\Http\Response
+    public function destroy(Book $book): Response
     {
         $this->authorize('delete', $book);
 

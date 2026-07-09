@@ -18,7 +18,7 @@ class BookController extends Controller
     {
         $keyword = request('keyword');
         $genreId = request('genre');
-        $sort    = request('sort', 'newest');
+        $sort = request('sort', 'newest');
 
         $query = Book::with('genres')
             ->withAvg('reviews', 'rating')
@@ -27,7 +27,7 @@ class BookController extends Controller
         if ($keyword) {
             $query->where(function ($q) use ($keyword) {
                 $q->where('title', 'like', "%{$keyword}%")
-                  ->orWhere('author', 'like', "%{$keyword}%");
+                    ->orWhere('author', 'like', "%{$keyword}%");
             });
         }
 
@@ -37,12 +37,12 @@ class BookController extends Controller
 
         match ($sort) {
             'oldest' => $query->oldest(),
-            'title'  => $query->orderBy('title'),
+            'title' => $query->orderBy('title'),
             'rating' => $query->orderByDesc('reviews_avg_rating')->orderByRaw('reviews_avg_rating IS NULL'),
-            default  => $query->latest(),
+            default => $query->latest(),
         };
 
-        $books  = $query->paginate(10)->withQueryString();
+        $books = $query->paginate(10)->withQueryString();
         $genres = Genre::all();
 
         return view('books.index', compact('books', 'genres'));
@@ -64,13 +64,13 @@ class BookController extends Controller
     public function store(StoreBookRequest $request): RedirectResponse
     {
         $book = Book::create([
-            'user_id'        => auth()->id(),
-            'title'          => $request->title,
-            'author'         => $request->author,
-            'isbn'           => $request->isbn ?: null,
+            'user_id' => auth()->id(),
+            'title' => $request->title,
+            'author' => $request->author,
+            'isbn' => $request->isbn ?: null,
             'published_date' => $request->published_date ?: null,
-            'description'    => $request->description,
-            'image_url'      => $request->image_url,
+            'description' => $request->description,
+            'image_url' => $request->image_url,
         ]);
 
         $book->genres()->sync($request->input('genres', []));
@@ -108,12 +108,12 @@ class BookController extends Controller
         $this->authorize('update', $book);
 
         $book->update([
-            'title'          => $request->title,
-            'author'         => $request->author,
-            'isbn'           => $request->isbn ?: null,
+            'title' => $request->title,
+            'author' => $request->author,
+            'isbn' => $request->isbn ?: null,
             'published_date' => $request->published_date ?: null,
-            'description'    => $request->description,
-            'image_url'      => $request->image_url,
+            'description' => $request->description,
+            'image_url' => $request->image_url,
         ]);
 
         $book->genres()->sync($request->input('genres', []));

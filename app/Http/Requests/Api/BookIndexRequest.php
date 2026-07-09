@@ -14,9 +14,9 @@ class BookIndexRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'keyword'  => ['nullable', 'string', 'max:255'],
-            'genre'    => ['nullable', 'integer', 'exists:genres,id'],
-            'page'     => ['nullable', 'integer', 'min:1'],
+            'keyword' => ['nullable', 'string', 'max:255'],
+            'genre' => ['nullable', 'integer', 'exists:genres,id'],
+            'page' => ['nullable', 'integer', 'min:1'],
             'per_page' => ['nullable', 'integer', 'min:1', 'max:100'],
         ];
     }
@@ -24,12 +24,12 @@ class BookIndexRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'genre.exists'      => '指定されたジャンルが存在しません。',
-            'page.integer'      => 'ページ番号は整数で指定してください。',
-            'page.min'          => 'ページ番号は1以上で指定してください。',
-            'per_page.integer'  => '件数は整数で指定してください。',
-            'per_page.min'      => '件数は1以上で指定してください。',
-            'per_page.max'      => '件数は100以下で指定してください。',
+            'genre.exists' => '指定されたジャンルが存在しません。',
+            'page.integer' => 'ページ番号は整数で指定してください。',
+            'page.min' => 'ページ番号は1以上で指定してください。',
+            'per_page.integer' => '件数は整数で指定してください。',
+            'per_page.min' => '件数は1以上で指定してください。',
+            'per_page.max' => '件数は100以下で指定してください。',
         ];
     }
 }

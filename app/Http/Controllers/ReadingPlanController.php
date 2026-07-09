@@ -47,9 +47,9 @@ class ReadingPlanController extends Controller
     public function store(StoreReadingPlanRequest $request): RedirectResponse
     {
         Auth::user()->readingPlans()->create([
-            'book_id'  => $request->book_id,
+            'book_id' => $request->book_id,
             'due_date' => $request->target_date,
-            'status'   => ReadingPlanStatus::Reading,
+            'status' => ReadingPlanStatus::Reading,
         ]);
 
         return redirect()->route('reading-plans.index')->with('success', '読書計画を登録しました。');
@@ -97,7 +97,7 @@ class ReadingPlanController extends Controller
         $this->authorize('complete', $plan);
 
         $plan->update([
-            'status'       => ReadingPlanStatus::Completed,
+            'status' => ReadingPlanStatus::Completed,
             'completed_at' => now(),
         ]);
 

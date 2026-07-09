@@ -13,17 +13,19 @@ class BookEditTest extends TestCase
     use RefreshDatabase;
 
     private User $user;
+
     private Book $book;
+
     private Genre $genre;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->user  = User::factory()->create();
+        $this->user = User::factory()->create();
         $this->genre = Genre::factory()->create();
-        $this->book  = Book::factory()->create([
+        $this->book = Book::factory()->create([
             'user_id' => $this->user->id,
-            'title'   => '編集前タイトル',
+            'title' => '編集前タイトル',
         ]);
         $this->book->genres()->attach($this->genre);
     }
@@ -43,18 +45,18 @@ class BookEditTest extends TestCase
         $newGenre = Genre::factory()->create();
 
         $this->actingAs($this->user)->put(route('books.update', $this->book), [
-            'title'  => '更新後タイトル',
+            'title' => '更新後タイトル',
             'author' => '更新後著者',
             'genres' => [$newGenre->id],
         ]);
 
         $this->assertDatabaseHas('books', [
-            'id'     => $this->book->id,
-            'title'  => '更新後タイトル',
+            'id' => $this->book->id,
+            'title' => '更新後タイトル',
             'author' => '更新後著者',
         ]);
         $this->assertDatabaseHas('book_genre', [
-            'book_id'  => $this->book->id,
+            'book_id' => $this->book->id,
             'genre_id' => $newGenre->id,
         ]);
     }
@@ -63,7 +65,7 @@ class BookEditTest extends TestCase
     public function test_タイトルを空にして更新するとバリデーションエラーになる(): void
     {
         $response = $this->actingAs($this->user)->put(route('books.update', $this->book), [
-            'title'  => '',
+            'title' => '',
             'author' => '著者名',
             'genres' => [$this->genre->id],
         ]);
@@ -74,7 +76,7 @@ class BookEditTest extends TestCase
     public function test_著者を空にして更新するとバリデーションエラーになる(): void
     {
         $response = $this->actingAs($this->user)->put(route('books.update', $this->book), [
-            'title'  => 'タイトル',
+            'title' => 'タイトル',
             'author' => '',
             'genres' => [$this->genre->id],
         ]);
@@ -85,7 +87,7 @@ class BookEditTest extends TestCase
     public function test_ジャンルを選択せずに更新するとバリデーションエラーになる(): void
     {
         $response = $this->actingAs($this->user)->put(route('books.update', $this->book), [
-            'title'  => 'タイトル',
+            'title' => 'タイトル',
             'author' => '著者名',
             'genres' => [],
         ]);

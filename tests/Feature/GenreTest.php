@@ -70,7 +70,7 @@ class GenreTest extends TestCase
     public function test_書籍が紐付いているジャンルは削除を制限される(): void
     {
         $genre = Genre::factory()->create();
-        $book  = Book::factory()->create();
+        $book = Book::factory()->create();
         $book->genres()->attach($genre);
 
         $response = $this->actingAs($this->user)->delete(route('genres.destroy', $genre));

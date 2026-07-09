@@ -12,12 +12,12 @@ class ReportController extends Controller
      */
     public function index(): View
     {
-        $user    = Auth::user();
+        $user = Auth::user();
         $reviews = $user->reviews()->with('book.genres')->get();
 
         $summary = [
-            'total_reviews'  => $reviews->count(),
-            'books_read'     => $reviews->pluck('book_id')->unique()->count(),
+            'total_reviews' => $reviews->count(),
+            'books_read' => $reviews->pluck('book_id')->unique()->count(),
             'average_rating' => $reviews->avg('rating') ?? 0,
         ];
 
@@ -32,8 +32,8 @@ class ReportController extends Controller
             ->unique('book_id')
             ->take(5)
             ->map(fn ($r) => [
-                'id'     => $r->book->id,
-                'title'  => $r->book->title,
+                'id' => $r->book->id,
+                'title' => $r->book->title,
                 'author' => $r->book->author,
                 'rating' => $r->rating,
             ])
@@ -42,27 +42,27 @@ class ReportController extends Controller
         // ジャンル別平均評価TOP5
         $genreRatings = $reviews->flatMap(function ($review) {
             return $review->book->genres->map(fn ($genre) => [
-                'genre_id'   => $genre->id,
+                'genre_id' => $genre->id,
                 'genre_name' => $genre->name,
-                'rating'     => $review->rating,
+                'rating' => $review->rating,
             ]);
         })
-        ->groupBy('genre_id')
-        ->map(fn ($items, $genreId) => [
-            'id'             => $genreId,
-            'name'           => $items->first()['genre_name'],
-            'average_rating' => round($items->avg('rating'), 1),
-            'count'          => $items->count(),
-        ])
-        ->sortByDesc('average_rating')
-        ->take(5)
-        ->values();
+            ->groupBy('genre_id')
+            ->map(fn ($items, $genreId) => [
+                'id' => $genreId,
+                'name' => $items->first()['genre_name'],
+                'average_rating' => round($items->avg('rating'), 1),
+                'count' => $items->count(),
+            ])
+            ->sortByDesc('average_rating')
+            ->take(5)
+            ->values();
 
         $stats = [
-            'summary'             => $summary,
+            'summary' => $summary,
             'rating_distribution' => $ratingDistribution,
-            'top_rated_books'     => $topRatedBooks,
-            'genre_ratings'       => $genreRatings,
+            'top_rated_books' => $topRatedBooks,
+            'genre_ratings' => $genreRatings,
         ];
 
         return view('reports.index', compact('stats'));

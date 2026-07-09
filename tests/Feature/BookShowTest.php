@@ -16,6 +16,7 @@ class BookShowTest extends TestCase
     use RefreshDatabase;
 
     private User $user;
+
     private Book $book;
 
     protected function setUp(): void
@@ -46,8 +47,8 @@ class BookShowTest extends TestCase
     {
         $book = Book::factory()->create([
             'user_id' => $this->user->id,
-            'title'   => '表示テスト書籍',
-            'author'  => '表示テスト著者',
+            'title' => '表示テスト書籍',
+            'author' => '表示テスト著者',
         ]);
 
         $response = $this->actingAs($this->user)->get(route('books.show', $book));
@@ -58,7 +59,7 @@ class BookShowTest extends TestCase
 
     public function test_書籍詳細にジャンルとレビューが表示される(): void
     {
-        $genre  = Genre::factory()->create(['name' => 'テストジャンル']);
+        $genre = Genre::factory()->create(['name' => 'テストジャンル']);
         $this->book->genres()->attach($genre);
         $review = Review::factory()->create([
             'book_id' => $this->book->id,
@@ -102,14 +103,14 @@ class BookShowTest extends TestCase
         $other = User::factory()->create();
 
         $this->actingAs($other)->post(route('reviews.store', $this->book), [
-            'rating'  => 4,
+            'rating' => 4,
             'comment' => 'とても良い本でした。',
         ]);
 
         $this->assertDatabaseHas('reviews', [
             'book_id' => $this->book->id,
             'user_id' => $other->id,
-            'rating'  => 4,
+            'rating' => 4,
             'comment' => 'とても良い本でした。',
         ]);
     }
@@ -117,7 +118,7 @@ class BookShowTest extends TestCase
     public function test_ログイン済みユーザーがレビューにいいねを追加できる(): void
     {
         $reviewer = User::factory()->create();
-        $review   = Review::factory()->create([
+        $review = Review::factory()->create([
             'book_id' => $this->book->id,
             'user_id' => $reviewer->id,
         ]);
@@ -126,7 +127,7 @@ class BookShowTest extends TestCase
         $this->actingAs($other)->post(route('reviews.like', $review));
 
         $this->assertDatabaseHas('review_likes', [
-            'user_id'   => $other->id,
+            'user_id' => $other->id,
             'review_id' => $review->id,
         ]);
     }
@@ -134,7 +135,7 @@ class BookShowTest extends TestCase
     public function test_ログイン済みユーザーがレビューのいいねを解除できる(): void
     {
         $reviewer = User::factory()->create();
-        $review   = Review::factory()->create([
+        $review = Review::factory()->create([
             'book_id' => $this->book->id,
             'user_id' => $reviewer->id,
         ]);
@@ -144,7 +145,7 @@ class BookShowTest extends TestCase
         $this->actingAs($other)->post(route('reviews.like', $review));
 
         $this->assertDatabaseMissing('review_likes', [
-            'user_id'   => $other->id,
+            'user_id' => $other->id,
             'review_id' => $review->id,
         ]);
     }
@@ -226,7 +227,7 @@ class BookShowTest extends TestCase
         $other = User::factory()->create();
 
         $response = $this->actingAs($other)->post(route('reviews.store', $this->book), [
-            'rating'  => 3,
+            'rating' => 3,
             'comment' => '',
         ]);
 
@@ -244,7 +245,7 @@ class BookShowTest extends TestCase
     public function test_未ログインユーザーがレビューを投稿しようとするとログイン画面にリダイレクトされる(): void
     {
         $response = $this->post(route('reviews.store', $this->book), [
-            'rating'  => 3,
+            'rating' => 3,
             'comment' => 'コメント',
         ]);
 

@@ -14,6 +14,7 @@ class ReadingPlanTest extends TestCase
     use RefreshDatabase;
 
     private User $user;
+
     private Book $book;
 
     protected function setUp(): void
@@ -55,6 +56,25 @@ class ReadingPlanTest extends TestCase
         $this->assertTrue($plans->every(fn ($p) => $p->status === ReadingPlanStatus::Reading));
     }
 
+    public function test_一覧に他ユーザーの計画は表示されない(): void
+    {
+        $otherUser = User::factory()->create();
+        ReadingPlan::factory()->reading()->create([
+            'user_id' => $this->user->id,
+            'book_id' => $this->book->id,
+        ]);
+        ReadingPlan::factory()->reading()->create([
+            'user_id' => $otherUser->id,
+            'book_id' => Book::factory()->create()->id,
+        ]);
+
+        $response = $this->actingAs($this->user)->get(route('reading-plans.index'));
+
+        $plans = $response->viewData('readingPlans');
+        $this->assertCount(1, $plans);
+        $this->assertTrue($plans->every(fn ($p) => $p->user_id === $this->user->id));
+    }
+
     public function test_読書計画作成フォームが表示される(): void
     {
         $response = $this->actingAs($this->user)->get(route('reading-plans.create'));
@@ -63,10 +83,17 @@ class ReadingPlanTest extends TestCase
         $response->assertViewIs('reading-plans.create');
     }
 
+    public function test_未認証では作成画面にアクセスできない(): void
+    {
+        $response = $this->get(route('reading-plans.create'));
+
+        $response->assertRedirect(route('login'));
+    }
+
     public function test_読書計画を登録できる(): void
     {
         $response = $this->actingAs($this->user)->post(route('reading-plans.store'), [
-            'book_id'     => $this->book->id,
+            'book_id' => $this->book->id,
             'target_date' => now()->addDays(7)->format('Y-m-d'),
         ]);
 
@@ -74,14 +101,14 @@ class ReadingPlanTest extends TestCase
         $this->assertDatabaseHas('reading_plans', [
             'user_id' => $this->user->id,
             'book_id' => $this->book->id,
-            'status'  => ReadingPlanStatus::Reading->value,
+            'status' => ReadingPlanStatus::Reading->value,
         ]);
     }
 
     public function test_過去の期日では登録できない(): void
     {
         $response = $this->actingAs($this->user)->post(route('reading-plans.store'), [
-            'book_id'     => $this->book->id,
+            'book_id' => $this->book->id,
             'target_date' => now()->subDays(1)->format('Y-m-d'),
         ]);
 
@@ -95,6 +122,46 @@ class ReadingPlanTest extends TestCase
         ]);
 
         $response->assertSessionHasErrors('book_id');
+    }
+
+    public function test_読書計画編集フォームが表示される(): void
+    {
+        $plan = ReadingPlan::factory()->reading()->create([
+            'user_id' => $this->user->id,
+            'book_id' => $this->book->id,
+            'due_date' => now()->addDays(10),
+        ]);
+
+        $response = $this->actingAs($this->user)->get(route('reading-plans.edit', $plan));
+
+        $response->assertOk();
+        $response->assertViewIs('reading-plans.edit');
+        $response->assertSee($plan->due_date->format('Y-m-d'));
+    }
+
+    public function test_未認証では編集画面にアクセスできない(): void
+    {
+        $plan = ReadingPlan::factory()->reading()->create([
+            'user_id' => $this->user->id,
+            'book_id' => $this->book->id,
+        ]);
+
+        $response = $this->get(route('reading-plans.edit', $plan));
+
+        $response->assertRedirect(route('login'));
+    }
+
+    public function test_他人の読書計画の編集画面は表示できない(): void
+    {
+        $otherUser = User::factory()->create();
+        $plan = ReadingPlan::factory()->reading()->create([
+            'user_id' => $otherUser->id,
+            'book_id' => $this->book->id,
+        ]);
+
+        $response = $this->actingAs($this->user)->get(route('reading-plans.edit', $plan));
+
+        $response->assertForbidden();
     }
 
     public function test_読書計画の期日を更新できる(): void
@@ -167,7 +234,7 @@ class ReadingPlanTest extends TestCase
 
         $response->assertRedirect(route('reading-plans.index'));
         $this->assertDatabaseHas('reading_plans', [
-            'id'     => $plan->id,
+            'id' => $plan->id,
             'status' => ReadingPlanStatus::Completed->value,
         ]);
         $this->assertNotNull($plan->fresh()->completed_at);

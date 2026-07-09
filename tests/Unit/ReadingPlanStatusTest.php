@@ -21,14 +21,14 @@ class ReadingPlanStatusTest extends TestCase
         $this->assertEquals('期限切れ', ReadingPlanStatus::Expired->label());
     }
 
-    public function test_badgeClassメソッドがCSSクラスを返す(): void
+    public function test_badge_classメソッドが_cs_sクラスを返す(): void
     {
         $this->assertStringContainsString('blue', ReadingPlanStatus::Reading->badgeClass());
         $this->assertStringContainsString('green', ReadingPlanStatus::Completed->badgeClass());
         $this->assertStringContainsString('red', ReadingPlanStatus::Expired->badgeClass());
     }
 
-    public function test_文字列からEnumにキャストできる(): void
+    public function test_文字列から_enumにキャストできる(): void
     {
         $this->assertEquals(ReadingPlanStatus::Reading, ReadingPlanStatus::from('reading'));
         $this->assertEquals(ReadingPlanStatus::Completed, ReadingPlanStatus::from('completed'));

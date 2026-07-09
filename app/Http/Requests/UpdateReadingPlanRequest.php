@@ -30,8 +30,8 @@ class UpdateReadingPlanRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'target_date.required'       => '期日を入力してください。',
-            'target_date.date'           => '期日は正しい日付形式で入力してください。',
+            'target_date.required' => '期日を入力してください。',
+            'target_date.date' => '期日は正しい日付形式で入力してください。',
             'target_date.after_or_equal' => '期日は今日以降の日付を入力してください。',
         ];
     }

@@ -105,7 +105,7 @@ class BookSearchTest extends TestCase
         $this->assertLessThan(strpos($content, 'Z本'), strpos($content, 'A本'));
     }
 
-    public function test_検索条件がページネーションURLに引き継がれる(): void
+    public function test_検索条件がページネーション_ur_lに引き継がれる(): void
     {
         $response = $this->actingAs($this->user)
             ->get(route('books.index', ['keyword' => 'Laravel', 'sort' => 'newest']));
@@ -141,17 +141,17 @@ class BookSearchTest extends TestCase
     {
         $reviewer = User::factory()->create();
         $highBook = Book::factory()->create(['title' => '高評価本']);
-        $lowBook  = Book::factory()->create(['title' => '低評価本']);
+        $lowBook = Book::factory()->create(['title' => '低評価本']);
 
-        \App\Models\Review::factory()->create([
+        Review::factory()->create([
             'book_id' => $highBook->id,
             'user_id' => $reviewer->id,
-            'rating'  => 5,
+            'rating' => 5,
         ]);
-        \App\Models\Review::factory()->create([
+        Review::factory()->create([
             'book_id' => $lowBook->id,
             'user_id' => $reviewer->id,
-            'rating'  => 1,
+            'rating' => 1,
         ]);
 
         $response = $this->actingAs($this->user)

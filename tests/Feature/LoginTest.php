@@ -14,12 +14,12 @@ class LoginTest extends TestCase
     public function test_正しい情報でログインすると書籍一覧に遷移する(): void
     {
         $user = User::factory()->create([
-            'email'    => 'test@example.com',
+            'email' => 'test@example.com',
             'password' => bcrypt('password123'),
         ]);
 
         $response = $this->post('/login', [
-            'email'    => 'test@example.com',
+            'email' => 'test@example.com',
             'password' => 'password123',
         ]);
 
@@ -38,7 +38,7 @@ class LoginTest extends TestCase
     public function test_メールアドレスを空にするとバリデーションエラーになる(): void
     {
         $response = $this->post('/login', [
-            'email'    => '',
+            'email' => '',
             'password' => 'password123',
         ]);
 
@@ -48,7 +48,7 @@ class LoginTest extends TestCase
     public function test_パスワードを空にするとバリデーションエラーになる(): void
     {
         $response = $this->post('/login', [
-            'email'    => 'test@example.com',
+            'email' => 'test@example.com',
             'password' => '',
         ]);
 
@@ -58,7 +58,7 @@ class LoginTest extends TestCase
     public function test_登録されていないメールアドレスでログインするとバリデーションエラーになる(): void
     {
         $response = $this->post('/login', [
-            'email'    => 'notregistered@example.com',
+            'email' => 'notregistered@example.com',
             'password' => 'password123',
         ]);
 

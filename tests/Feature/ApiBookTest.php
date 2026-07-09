@@ -13,18 +13,19 @@ class ApiBookTest extends TestCase
     use RefreshDatabase;
 
     private User $user;
+
     private Genre $genre;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->user  = User::factory()->create();
+        $this->user = User::factory()->create();
         $this->genre = Genre::factory()->create();
     }
 
     // ─── 認証不要エンドポイント ───────────────────────────────────
 
-    public function test_書籍一覧をAPIで取得できる(): void
+    public function test_書籍一覧を_ap_iで取得できる(): void
     {
         Book::factory()->count(3)->create();
 
@@ -34,7 +35,7 @@ class ApiBookTest extends TestCase
             ->assertJsonStructure(['data', 'meta']);
     }
 
-    public function test_書籍詳細をAPIで取得できる(): void
+    public function test_書籍詳細を_ap_iで取得できる(): void
     {
         $book = Book::factory()->create();
 
@@ -44,7 +45,7 @@ class ApiBookTest extends TestCase
             ->assertJsonPath('data.id', $book->id);
     }
 
-    public function test_存在しない書籍IDでは404になる(): void
+    public function test_存在しない書籍_i_dでは404になる(): void
     {
         $response = $this->getJson('/api/v1/books/9999');
 
@@ -56,7 +57,7 @@ class ApiBookTest extends TestCase
     public function test_未認証では書籍を登録できない(): void
     {
         $response = $this->postJson('/api/v1/books', [
-            'title'  => 'テスト本',
+            'title' => 'テスト本',
             'author' => '著者名',
             'genres' => [$this->genre->id],
         ]);
@@ -64,22 +65,22 @@ class ApiBookTest extends TestCase
         $response->assertUnauthorized();
     }
 
-    public function test_Sanctum認証で書籍を登録できる(): void
+    public function test_sanctum認証で書籍を登録できる(): void
     {
         $token = $this->user->createToken('test-token')->plainTextToken;
 
         $response = $this->withToken($token)->postJson('/api/v1/books', [
-            'title'       => 'テスト本',
-            'author'      => '著者名',
+            'title' => 'テスト本',
+            'author' => '著者名',
             'description' => '説明文',
-            'genres'      => [$this->genre->id],
+            'genres' => [$this->genre->id],
         ]);
 
         $response->assertCreated()
             ->assertJsonPath('data.title', 'テスト本');
 
         $this->assertDatabaseHas('books', [
-            'title'   => 'テスト本',
+            'title' => 'テスト本',
             'user_id' => $this->user->id,
         ]);
     }
@@ -102,7 +103,7 @@ class ApiBookTest extends TestCase
         $token = $this->user->createToken('test-token')->plainTextToken;
 
         $response = $this->withToken($token)->postJson('/api/v1/books', [
-            'title'  => 'テスト本',
+            'title' => 'テスト本',
             'author' => '著者名',
         ]);
 
@@ -115,7 +116,7 @@ class ApiBookTest extends TestCase
         $book = Book::factory()->create(['user_id' => $this->user->id]);
 
         $response = $this->putJson("/api/v1/books/{$book->id}", [
-            'title'  => '更新後タイトル',
+            'title' => '更新後タイトル',
             'author' => '著者名',
             'genres' => [$this->genre->id],
         ]);
@@ -123,15 +124,15 @@ class ApiBookTest extends TestCase
         $response->assertUnauthorized();
     }
 
-    public function test_Sanctum認証で書籍を更新できる(): void
+    public function test_sanctum認証で書籍を更新できる(): void
     {
-        $book  = Book::factory()->create(['user_id' => $this->user->id]);
+        $book = Book::factory()->create(['user_id' => $this->user->id]);
         $token = $this->user->createToken('test-token')->plainTextToken;
 
         $book->genres()->attach($this->genre);
 
         $response = $this->withToken($token)->putJson("/api/v1/books/{$book->id}", [
-            'title'  => '更新後タイトル',
+            'title' => '更新後タイトル',
             'author' => '著者名',
             'genres' => [$this->genre->id],
         ]);
@@ -143,11 +144,11 @@ class ApiBookTest extends TestCase
     public function test_他人の書籍は更新できない(): void
     {
         $otherUser = User::factory()->create();
-        $book      = Book::factory()->create(['user_id' => $otherUser->id]);
-        $token     = $this->user->createToken('test-token')->plainTextToken;
+        $book = Book::factory()->create(['user_id' => $otherUser->id]);
+        $token = $this->user->createToken('test-token')->plainTextToken;
 
         $response = $this->withToken($token)->putJson("/api/v1/books/{$book->id}", [
-            'title'  => '更新後タイトル',
+            'title' => '更新後タイトル',
             'author' => '著者名',
             'genres' => [$this->genre->id],
         ]);
@@ -164,9 +165,9 @@ class ApiBookTest extends TestCase
         $response->assertUnauthorized();
     }
 
-    public function test_Sanctum認証で書籍を削除できる(): void
+    public function test_sanctum認証で書籍を削除できる(): void
     {
-        $book  = Book::factory()->create(['user_id' => $this->user->id]);
+        $book = Book::factory()->create(['user_id' => $this->user->id]);
         $token = $this->user->createToken('test-token')->plainTextToken;
 
         $response = $this->withToken($token)->deleteJson("/api/v1/books/{$book->id}");
@@ -178,8 +179,8 @@ class ApiBookTest extends TestCase
     public function test_他人の書籍は削除できない(): void
     {
         $otherUser = User::factory()->create();
-        $book      = Book::factory()->create(['user_id' => $otherUser->id]);
-        $token     = $this->user->createToken('test-token')->plainTextToken;
+        $book = Book::factory()->create(['user_id' => $otherUser->id]);
+        $token = $this->user->createToken('test-token')->plainTextToken;
 
         $response = $this->withToken($token)->deleteJson("/api/v1/books/{$book->id}");
 
@@ -187,7 +188,7 @@ class ApiBookTest extends TestCase
         $this->assertDatabaseHas('books', ['id' => $book->id]);
     }
 
-    public function test_APIでキーワード検索できる(): void
+    public function test_ap_iでキーワード検索できる(): void
     {
         Book::factory()->create(['title' => 'Laravel実践']);
         Book::factory()->create(['title' => 'Python入門']);
@@ -200,11 +201,11 @@ class ApiBookTest extends TestCase
         $this->assertEquals('Laravel実践', $data[0]['title']);
     }
 
-    public function test_APIでジャンルフィルタができる(): void
+    public function test_ap_iでジャンルフィルタができる(): void
     {
         $genre2 = Genre::factory()->create();
-        $book1  = Book::factory()->create(['title' => 'Genre1の本']);
-        $book2  = Book::factory()->create(['title' => 'Genre2の本']);
+        $book1 = Book::factory()->create(['title' => 'Genre1の本']);
+        $book2 = Book::factory()->create(['title' => 'Genre2の本']);
 
         $book1->genres()->attach($this->genre);
         $book2->genres()->attach($genre2);
