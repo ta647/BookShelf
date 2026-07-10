@@ -13,6 +13,11 @@ class ExpireReadingPlans extends Command
 
     protected $description = '期日を過ぎた読書計画のステータスを期限切れに変更する';
 
+    /**
+     * 期日を過ぎた「進行中」の読書計画を「期限切れ」に一括更新する
+     *
+     * @return int コマンドの終了ステータス
+     */
     public function handle(): int
     {
         $count = ReadingPlan::where('status', ReadingPlanStatus::Reading)

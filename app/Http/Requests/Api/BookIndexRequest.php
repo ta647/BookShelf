@@ -6,11 +6,19 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class BookIndexRequest extends FormRequest
 {
+    /**
+     * このリクエストの実行可否を判定する
+     */
     public function authorize(): bool
     {
         return true;
     }
 
+    /**
+     * 書籍一覧API取得時のバリデーションルール
+     *
+     * @return array<string, mixed>
+     */
     public function rules(): array
     {
         return [
@@ -21,6 +29,9 @@ class BookIndexRequest extends FormRequest
         ];
     }
 
+    /**
+     * @return array<string, string>
+     */
     public function messages(): array
     {
         return [

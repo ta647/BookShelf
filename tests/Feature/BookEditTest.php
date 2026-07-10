@@ -40,6 +40,14 @@ class BookEditTest extends TestCase
         $response->assertSee('編集前タイトル');
     }
 
+    public function test_編集画面のviewに書籍とジャンル一覧が渡される(): void
+    {
+        $response = $this->actingAs($this->user)->get(route('books.edit', $this->book));
+
+        $response->assertViewHas('book', fn (Book $book) => $book->is($this->book));
+        $response->assertViewHas('genres');
+    }
+
     public function test_作成者本人が内容を変更すると書籍とジャンル紐付けが更新される(): void
     {
         $newGenre = Genre::factory()->create();
@@ -58,6 +66,33 @@ class BookEditTest extends TestCase
         $this->assertDatabaseHas('book_genre', [
             'book_id' => $this->book->id,
             'genre_id' => $newGenre->id,
+        ]);
+    }
+
+    // 権限系
+    public function test_作成者でないユーザーは編集画面を表示できない(): void
+    {
+        $otherUser = User::factory()->create();
+
+        $response = $this->actingAs($otherUser)->get(route('books.edit', $this->book));
+
+        $response->assertForbidden();
+    }
+
+    public function test_作成者でないユーザーは更新できない(): void
+    {
+        $otherUser = User::factory()->create();
+
+        $response = $this->actingAs($otherUser)->put(route('books.update', $this->book), [
+            'title' => '更新後タイトル',
+            'author' => '更新後著者',
+            'genres' => [$this->genre->id],
+        ]);
+
+        $response->assertForbidden();
+        $this->assertDatabaseHas('books', [
+            'id' => $this->book->id,
+            'title' => '編集前タイトル',
         ]);
     }
 

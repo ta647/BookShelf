@@ -7,11 +7,19 @@ use Illuminate\Validation\Rule;
 
 class UpdateGenreRequest extends FormRequest
 {
+    /**
+     * このリクエストの実行可否を判定する
+     */
     public function authorize(): bool
     {
         return true;
     }
 
+    /**
+     * ジャンル更新時のバリデーションルール
+     *
+     * @return array<string, mixed>
+     */
     public function rules(): array
     {
         return [
@@ -19,6 +27,9 @@ class UpdateGenreRequest extends FormRequest
         ];
     }
 
+    /**
+     * @return array<string, string>
+     */
     public function messages(): array
     {
         return [

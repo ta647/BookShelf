@@ -66,13 +66,17 @@ class ReadingPlanController extends Controller
     }
 
     /**
-     * 読書計画の期日を更新する
+     * 読書計画の期日を更新する（期限切れの計画は「進行中」に復帰する）
      */
     public function update(UpdateReadingPlanRequest $request, ReadingPlan $plan): RedirectResponse
     {
         $this->authorize('update', $plan);
 
-        $plan->update(['due_date' => $request->target_date]);
+        // バリデーションで期日は今日以降が保証されるため、期限切れの計画は進行中に戻す
+        $plan->update([
+            'due_date' => $request->target_date,
+            'status' => ReadingPlanStatus::Reading,
+        ]);
 
         return redirect()->route('reading-plans.index')->with('success', '読書計画を更新しました。');
     }
