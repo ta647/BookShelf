@@ -107,10 +107,16 @@ class BookSearchTest extends TestCase
 
     public function test_検索条件がページネーション_ur_lに引き継がれる(): void
     {
+        Book::factory()->count(15)->create(['title' => 'Laravel入門']);
+
         $response = $this->actingAs($this->user)
             ->get(route('books.index', ['keyword' => 'Laravel', 'sort' => 'newest']));
 
         $response->assertOk();
+        $response->assertSee(
+            e(route('books.index', ['keyword' => 'Laravel', 'sort' => 'newest', 'page' => 2])),
+            false
+        );
     }
 
     public function test_未ログインユーザーも書籍一覧にアクセスできる(): void

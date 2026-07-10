@@ -25,6 +25,18 @@ class ReadingPlan extends Model
         'status' => ReadingPlanStatus::class,
     ];
 
+    /**
+     * 通知はPolymorphic関連のためDBのCASCADE制約が効かず、計画の削除時に手動で削除する
+     */
+    protected static function booted(): void
+    {
+        static::deleting(function (ReadingPlan $plan) {
+            $plan->user->notifications()
+                ->where('data->reading_plan_id', $plan->id)
+                ->delete();
+        });
+    }
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);

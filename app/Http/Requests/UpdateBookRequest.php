@@ -7,11 +7,19 @@ use Illuminate\Validation\Rule;
 
 class UpdateBookRequest extends FormRequest
 {
+    /**
+     * このリクエストの実行可否を判定する
+     */
     public function authorize(): bool
     {
         return true;
     }
 
+    /**
+     * 書籍更新時のバリデーションルール
+     *
+     * @return array<string, mixed>
+     */
     public function rules(): array
     {
         return [
@@ -26,6 +34,9 @@ class UpdateBookRequest extends FormRequest
         ];
     }
 
+    /**
+     * @return array<string, string>
+     */
     public function messages(): array
     {
         return [

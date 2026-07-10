@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Enums\ReadingPlanReminderType;
 use App\Enums\ReadingPlanStatus;
 use App\Models\Book;
 use App\Models\ReadingPlan;
@@ -61,41 +62,114 @@ class BatchProcessingTest extends TestCase
         $this->assertEquals(ReadingPlanStatus::Completed, $completedPlan->fresh()->status);
     }
 
-    public function test_明日が期日の読書計画でリマインダー通知が送られる(): void
+    public function test_期日3日前の進行中計画に予告通知が送られる(): void
     {
         Notification::fake();
 
         $user = User::factory()->create();
         $book = Book::factory()->create();
 
-        $plan = ReadingPlan::factory()->create([
+        ReadingPlan::factory()->create([
             'user_id' => $user->id,
             'book_id' => $book->id,
             'status' => ReadingPlanStatus::Reading,
-            'due_date' => Carbon::tomorrow(),
+            'due_date' => Carbon::today()->addDays(3),
         ]);
 
         $this->artisan('app:send-reading-plan-reminders')->assertExitCode(0);
 
         Notification::assertSentTo(
             $user,
-            ReadingPlanReminder::class
+            ReadingPlanReminder::class,
+            fn (ReadingPlanReminder $notification) => $notification->toArray($user)['timing'] === ReadingPlanReminderType::Advance->value
         );
     }
 
-    public function test_期日が明日でない計画にはリマインダーが送られない(): void
+    public function test_期日当日の進行中計画に最終リマインド通知が送られる(): void
     {
         Notification::fake();
 
         $user = User::factory()->create();
         $book = Book::factory()->create();
 
-        // 期日が3日後
         ReadingPlan::factory()->create([
             'user_id' => $user->id,
             'book_id' => $book->id,
             'status' => ReadingPlanStatus::Reading,
-            'due_date' => Carbon::today()->addDays(3),
+            'due_date' => Carbon::today(),
+        ]);
+
+        $this->artisan('app:send-reading-plan-reminders')->assertExitCode(0);
+
+        Notification::assertSentTo(
+            $user,
+            ReadingPlanReminder::class,
+            fn (ReadingPlanReminder $notification) => $notification->toArray($user)['timing'] === ReadingPlanReminderType::DueDate->value
+        );
+    }
+
+    public function test_期日3日後の期限切れ計画に再エンゲージメント通知が送られる(): void
+    {
+        Notification::fake();
+
+        $user = User::factory()->create();
+        $book = Book::factory()->create();
+
+        ReadingPlan::factory()->create([
+            'user_id' => $user->id,
+            'book_id' => $book->id,
+            'status' => ReadingPlanStatus::Expired,
+            'due_date' => Carbon::today()->subDays(3),
+        ]);
+
+        $this->artisan('app:send-reading-plan-reminders')->assertExitCode(0);
+
+        Notification::assertSentTo(
+            $user,
+            ReadingPlanReminder::class,
+            fn (ReadingPlanReminder $notification) => $notification->toArray($user)['timing'] === ReadingPlanReminderType::Reengagement->value
+        );
+    }
+
+    public function test_発火タイミング以外の期日にはリマインダーが送られない(): void
+    {
+        Notification::fake();
+
+        $user = User::factory()->create();
+
+        // 期日が明日の進行中計画（3日前・当日のいずれにも該当しない）
+        ReadingPlan::factory()->create([
+            'user_id' => $user->id,
+            'book_id' => Book::factory()->create()->id,
+            'status' => ReadingPlanStatus::Reading,
+            'due_date' => Carbon::tomorrow(),
+        ]);
+
+        // 期日が昨日の期限切れ計画（3日後に該当しない）
+        ReadingPlan::factory()->create([
+            'user_id' => $user->id,
+            'book_id' => Book::factory()->create()->id,
+            'status' => ReadingPlanStatus::Expired,
+            'due_date' => Carbon::yesterday(),
+        ]);
+
+        $this->artisan('app:send-reading-plan-reminders')->assertExitCode(0);
+
+        Notification::assertNothingSent();
+    }
+
+    public function test_期日3日後でも進行中の計画には再エンゲージメント通知が送られない(): void
+    {
+        Notification::fake();
+
+        $user = User::factory()->create();
+        $book = Book::factory()->create();
+
+        ReadingPlan::factory()->create([
+            'user_id' => $user->id,
+            'book_id' => $book->id,
+            'status' => ReadingPlanStatus::Reading,
+            'due_date' => Carbon::today()->subDays(3),
         ]);
 
         $this->artisan('app:send-reading-plan-reminders')->assertExitCode(0);
@@ -114,7 +188,7 @@ class BatchProcessingTest extends TestCase
             'user_id' => $user->id,
             'book_id' => $book->id,
             'status' => ReadingPlanStatus::Completed,
-            'due_date' => Carbon::tomorrow(),
+            'due_date' => Carbon::today(),
             'completed_at' => Carbon::today(),
         ]);
 

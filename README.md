@@ -21,7 +21,13 @@ git clone https://github.com/ta647/BookShelf.git
 cd bookshelf-app
 ```
 
-2. `.env` を用意する
+2. Google Books APIキーを取得する
+	1. [Google Cloud Console](https://console.cloud.google.com/)にアクセスし、Googleアカウントでログインする
+	2. 画面上部のプロジェクト選択から「新しいプロジェクト」を作成する（既存プロジェクトがあればそれを使ってもよい）
+	3. 左メニュー「APIとサービス」→「ライブラリ」から「Books API」を検索し、有効にする
+	4. 「APIとサービス」→「認証情報」→「認証情報を作成」→「APIキー」を選択し、発行されたキーをコピーする
+
+3. `.env` を用意する
 ```bash
 cp .env.example .env
 ```
@@ -30,9 +36,10 @@ cp .env.example .env
 DB_HOST=mysql
 DB_USERNAME=sail
 DB_PASSWORD=password
+GOOGLE_BOOKS_API_KEY=（取得したAPIキーを設定する）
 ```
 
-3. 依存パッケージをインストールする
+4. 依存パッケージをインストールする
 ```bash
 docker run --rm \
     -u "$(id -u):$(id -g)" \
@@ -42,28 +49,28 @@ docker run --rm \
     composer install --ignore-platform-reqs
 ```
 
-4. コンテナを起動する
+5. コンテナを起動する
 ```bash
 ./vendor/bin/sail up -d
 ```
 
-5. アプリケーションキーを生成する
+6. アプリケーションキーを生成する
 ```bash
 ./vendor/bin/sail artisan key:generate
 ```
 
-6. マイグレーションと初期データを投入する
+7. マイグレーションと初期データを投入する
 ```bash
 ./vendor/bin/sail artisan migrate:fresh --seed
 ```
 
-7. フロントエンドをビルドする
+8. フロントエンドをビルドする
 ```bash
 ./vendor/bin/sail npm install
 ./vendor/bin/sail npm run dev
 ```
 
-8. ブラウザで http://localhost にアクセスする
+9. ブラウザで http://localhost にアクセスする
 
 
 
@@ -77,6 +84,27 @@ docker run --rm \
 - Google Books API（ISBN書籍検索）
 - PHPUnit（自動テスト）
 - Laravel Task Scheduling（日次バッチ処理）
+
+## バッチ処理・通知仕様
+
+| コマンド | 実行時刻 | 内容 |
+|---|---|---|
+| `app:expire-reading-plans` | 毎日 00:00 | 期日を過ぎた「進行中」の読書計画を「期限切れ」に更新する |
+| `app:send-reading-plan-reminders` | 毎日 08:00 | 下記3タイミングでリマインダー通知を送信する |
+
+リマインダー通知の発火タイミング：
+
+| タイミング | 対象ステータス | 通知種別 |
+|---|---|---|
+| 期日3日前 | 進行中 | 予告通知 |
+| 期日当日 | 進行中 | 最終リマインド通知 |
+| 期日3日後 | 期限切れ | 再エンゲージメント通知 |
+
+読書計画に関する補足仕様：
+
+- 完了済みの計画は所有者でも編集不可（403）
+- 期限切れの計画の期日を今日以降に更新すると、ステータスは「進行中」に戻る
+- 計画の削除時は、紐づくリマインダー通知も手動で削除する（通知はPolymorphic関連のためDBのCASCADE制約が効かない）
 
 ## 作成者
 舘岡藍加

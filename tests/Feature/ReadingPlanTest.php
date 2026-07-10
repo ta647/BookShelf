@@ -2,10 +2,12 @@
 
 namespace Tests\Feature;
 
+use App\Enums\ReadingPlanReminderType;
 use App\Enums\ReadingPlanStatus;
 use App\Models\Book;
 use App\Models\ReadingPlan;
 use App\Models\User;
+use App\Notifications\ReadingPlanReminder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -181,6 +183,51 @@ class ReadingPlanTest extends TestCase
         $this->assertEquals($newDate, $plan->fresh()->due_date->format('Y-m-d'));
     }
 
+    public function test_完了済みの計画は所有者でも編集画面を表示できない(): void
+    {
+        $plan = ReadingPlan::factory()->completed()->create([
+            'user_id' => $this->user->id,
+            'book_id' => $this->book->id,
+        ]);
+
+        $response = $this->actingAs($this->user)->get(route('reading-plans.edit', $plan));
+
+        $response->assertForbidden();
+    }
+
+    public function test_完了済みの計画は所有者でも更新できない(): void
+    {
+        $plan = ReadingPlan::factory()->completed()->create([
+            'user_id' => $this->user->id,
+            'book_id' => $this->book->id,
+        ]);
+
+        $response = $this->actingAs($this->user)->put(route('reading-plans.update', $plan), [
+            'target_date' => now()->addDays(7)->format('Y-m-d'),
+        ]);
+
+        $response->assertForbidden();
+    }
+
+    public function test_期限切れの計画の期日を今日以降に更新すると進行中に戻る(): void
+    {
+        $plan = ReadingPlan::factory()->expired()->create([
+            'user_id' => $this->user->id,
+            'book_id' => $this->book->id,
+        ]);
+
+        $newDate = now()->addDays(7)->format('Y-m-d');
+
+        $response = $this->actingAs($this->user)->put(route('reading-plans.update', $plan), [
+            'target_date' => $newDate,
+        ]);
+
+        $response->assertRedirect(route('reading-plans.index'));
+        $freshPlan = $plan->fresh();
+        $this->assertEquals(ReadingPlanStatus::Reading, $freshPlan->status);
+        $this->assertEquals($newDate, $freshPlan->due_date->format('Y-m-d'));
+    }
+
     public function test_他人の読書計画は更新できない(): void
     {
         $otherUser = User::factory()->create();
@@ -207,6 +254,32 @@ class ReadingPlanTest extends TestCase
 
         $response->assertRedirect(route('reading-plans.index'));
         $this->assertDatabaseMissing('reading_plans', ['id' => $plan->id]);
+    }
+
+    public function test_読書計画を削除すると紐づく通知も削除される(): void
+    {
+        $plan = ReadingPlan::factory()->reading()->create([
+            'user_id' => $this->user->id,
+            'book_id' => $this->book->id,
+        ]);
+        $otherPlan = ReadingPlan::factory()->reading()->create([
+            'user_id' => $this->user->id,
+            'book_id' => Book::factory()->create()->id,
+        ]);
+
+        $this->user->notify(new ReadingPlanReminder($plan, ReadingPlanReminderType::DueDate));
+        $this->user->notify(new ReadingPlanReminder($otherPlan, ReadingPlanReminderType::DueDate));
+        $this->assertDatabaseCount('notifications', 2);
+
+        $response = $this->actingAs($this->user)->delete(route('reading-plans.destroy', $plan));
+
+        $response->assertRedirect(route('reading-plans.index'));
+        $this->assertDatabaseMissing('reading_plans', ['id' => $plan->id]);
+
+        // 削除した計画の通知だけが消え、他の計画の通知は残る
+        $remainingNotifications = $this->user->notifications()->get();
+        $this->assertCount(1, $remainingNotifications);
+        $this->assertEquals($otherPlan->id, $remainingNotifications->first()->data['reading_plan_id']);
     }
 
     public function test_他人の読書計画は削除できない(): void

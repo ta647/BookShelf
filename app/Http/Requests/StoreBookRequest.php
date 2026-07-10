@@ -6,11 +6,19 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class StoreBookRequest extends FormRequest
 {
+    /**
+     * このリクエストの実行可否を判定する
+     */
     public function authorize(): bool
     {
         return true;
     }
 
+    /**
+     * 書籍登録時のバリデーションルール
+     *
+     * @return array<string, mixed>
+     */
     public function rules(): array
     {
         return [
@@ -25,6 +33,9 @@ class StoreBookRequest extends FormRequest
         ];
     }
 
+    /**
+     * @return array<string, string>
+     */
     public function messages(): array
     {
         return [
