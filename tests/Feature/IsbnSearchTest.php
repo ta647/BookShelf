@@ -52,7 +52,7 @@ class IsbnSearchTest extends TestCase
     {
         $response = $this->actingAs($this->user)->getJson('/books/isbn/123');
 
-        $response->assertStatus(422)
+        $response->assertStatus(400)
             ->assertJsonFragment(['error' => 'ISBNは13桁の数字で入力してください。']);
     }
 
